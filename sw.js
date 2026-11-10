@@ -1,7 +1,7 @@
 /* Service worker du tracker Budget.
    Réseau d'abord (pour recevoir les mises à jour), copie en cache en secours (hors connexion).
    Il ne touche pas aux données : elles restent dans le localStorage du navigateur. */
-const CACHE = "budget-app-v1";
+const CACHE = "budget-app-v2";
 const CORE = [
   "./",
   "index.html",
@@ -29,7 +29,7 @@ self.addEventListener("fetch", event => {
   const req = event.request;
   if(req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
   event.respondWith(
-    fetch(req)
+    fetch(req, { cache: "no-cache" })  // revalide toujours auprès du serveur : les mises à jour arrivent tout de suite
       .then(res => {
         const copy = res.clone();
         caches.open(CACHE).then(cache => cache.put(req, copy));

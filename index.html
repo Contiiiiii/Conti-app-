@@ -1425,7 +1425,15 @@ function init(){
 
   // rend l'app installable (Chrome : menu > Caster, enregistrer et partager > Installer Budget)
   if("serviceWorker" in navigator && location.protocol.startsWith("http")){
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    // Une nouvelle version de l'app a pris le relais : on recharge une fois pour l'afficher
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if(!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register("sw.js").then(reg => reg.update()).catch(() => {});
   }
 }
 
