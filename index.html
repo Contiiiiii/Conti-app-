@@ -107,7 +107,8 @@
 
   .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
   .grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
-  .grid-5{display:grid; grid-template-columns:repeat(5,1fr); gap:16px;}
+  .grid-5{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .stat-card.highlight{border-color:var(--accent);}
   section{margin-bottom:28px;}
   .section-title{
     font-size:13px; text-transform:uppercase; letter-spacing:.08em;
@@ -327,6 +328,11 @@
       <div class="stat-card">
         <div class="label">Revenu investi</div>
         <div class="value" id="statInvested">0 %</div>
+      </div>
+      <div class="stat-card highlight">
+        <div class="label">Reste vs prévu</div>
+        <div class="value" id="statPlanDelta">0 €</div>
+        <div class="foot" id="statPlanDeltaFoot"></div>
       </div>
     </div>
   </section>
@@ -989,7 +995,7 @@ function renderRecapTable(){
   const tbody = document.getElementById("recapBody");
   tbody.innerHTML = "";
 
-  let totalBudget = 0, totalSpent = 0, totalSpentNoInvest = 0;
+  let totalBudget = 0, totalSpent = 0, totalSpentNoInvest = 0, totalBudgetNoInvest = 0;
 
   CATEGORIES.forEach(cat => {
     const prevu = catBudgetTotal(data, cat.key);
@@ -997,7 +1003,7 @@ function renderRecapTable(){
     const ecart = prevu - depense;
     totalBudget += prevu;
     totalSpent += depense;
-    if(cat.key !== "Investissement") totalSpentNoInvest += depense;
+    if(cat.key !== "Investissement"){ totalSpentNoInvest += depense; totalBudgetNoInvest += prevu; }
 
     let badge;
     if(prevu === 0 && depense === 0){
@@ -1033,7 +1039,7 @@ function renderRecapTable(){
   `;
   tbody.appendChild(totalRow);
 
-  return { totalBudget, totalSpent, totalSpentNoInvest, ecartTotal };
+  return { totalBudget, totalSpent, totalSpentNoInvest, totalBudgetNoInvest, ecartTotal };
 }
 
 /* ---------- Bilan global : calculé par rapport au revenu saisi ---------- */
@@ -1060,6 +1066,17 @@ function renderStats(totals){
   const investedEl = document.getElementById("statInvested");
   investedEl.textContent = investedPct.toFixed(1) + " %";
   investedEl.className = "value " + (invested >= 0 ? "good" : "bad");
+
+  // Reste vs prévu = budget prévu − dépenses réelles (hors investissement)
+  const delta = totals.totalBudgetNoInvest - spent;
+  const deltaEl = document.getElementById("statPlanDelta");
+  deltaEl.textContent = (delta > 0 ? '+' : '') + fmt(delta);
+  deltaEl.className = "value " + (delta >= 0 ? "good" : "bad");
+  document.getElementById("statPlanDeltaFoot").textContent =
+    totals.totalBudgetNoInvest === 0 && spent === 0 ? "Aucun budget prévu ce mois"
+    : delta > 0 ? "En plus par rapport au prévu"
+    : delta < 0 ? "En moins : dépassement du prévu"
+    : "Pile dans le prévu";
 }
 
 /* ---------- Graphique Chart.js ---------- */
