@@ -231,6 +231,9 @@
   /* ===== HISTORY ===== */
   .history-controls{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:12px; flex-wrap:wrap;}
   .history-controls select{background:var(--input-bg); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-size:13px;}
+  .history-scroll{max-height:460px; overflow-y:auto; margin:0 -4px; padding:0 4px;}
+  .history-scroll thead th{position:sticky; top:0; background:#1b1830; z-index:1;}
+  #historyTable td:last-child .row-actions{justify-content:flex-end;}
   .empty-state{text-align:center; padding:40px 20px; color:var(--muted); font-size:14px;}
   .row-actions{display:flex; gap:8px;}
   .icon-btn{
@@ -275,6 +278,7 @@
     .line-name{flex:1.4;}
     .line-amount{max-width:80px;}
     .budget-categories-grid{grid-template-columns:1fr;}
+    .history-scroll{max-height:none; overflow:visible;}
   }
 </style>
 </head>
@@ -423,37 +427,39 @@
           <canvas id="budgetChart" height="220"></canvas>
         </div>
       </section>
+
+      <!-- ===== HISTORIQUE ===== -->
+      <section>
+        <div class="section-title">Historique des transactions</div>
+        <div class="panel">
+          <div class="history-controls">
+            <span style="font-size:13px; color:var(--muted);" id="historyCount">0 transaction</span>
+            <select id="sortSelect">
+              <option value="date-desc">Date (récent)</option>
+              <option value="date-asc">Date (ancien)</option>
+              <option value="amount-desc">Montant (haut)</option>
+              <option value="amount-asc">Montant (bas)</option>
+              <option value="category">Catégorie</option>
+            </select>
+          </div>
+          <div class="history-scroll">
+            <table id="historyTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Catégorie</th>
+                  <th class="num">Montant</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" style="display:none;">Aucune transaction ce mois-ci. Ajoute ta première dépense avec « Ajouter une dépense ».</div>
+        </div>
+      </section>
     </div>
   </div>
-
-  <!-- ===== HISTORIQUE ===== -->
-  <section>
-    <div class="section-title">Historique des transactions</div>
-    <div class="panel">
-      <div class="history-controls">
-        <span style="font-size:13px; color:var(--muted);" id="historyCount">0 transaction</span>
-        <select id="sortSelect">
-          <option value="date-desc">Date (récent)</option>
-          <option value="date-asc">Date (ancien)</option>
-          <option value="amount-desc">Montant (haut)</option>
-          <option value="amount-asc">Montant (bas)</option>
-          <option value="category">Catégorie</option>
-        </select>
-      </div>
-      <table id="historyTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Catégorie</th>
-            <th class="num">Montant</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="historyBody"></tbody>
-      </table>
-      <div class="empty-state" id="emptyState" style="display:none;">Aucune transaction ce mois-ci. Ajoute ta première dépense ci-dessus.</div>
-    </div>
-  </section>
 
 </main>
 
