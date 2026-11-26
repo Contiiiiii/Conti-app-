@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculateur d'intérêts</title>
+<meta name="theme-color" content="#0B0B12">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens charte Outils Conti ===== */
+:root{
+  --bg:#0B0B12; --surface:rgba(21,20,31,.92); --surface-raised:#1E1B2E; --border:#2A2740;
+  --violet:#6D4AFF; --violet-deep:#2A1B5C; --violet-line:rgba(109,74,255,.5);
+  --accent:#5EEAD4; --number:#5EEAD4;
+  --text:#5EEAD4;            /* tout le texte en menthe */
+  --text-muted:#86CFC2;      /* menthe adoucie pour les libellés */
+  --success:#3DD68C; --danger:#FF5C70;
+  --focus-ring:#6D4AFF66;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg)}
+body{color:var(--text);font:400 14px/1.5 Inter,system-ui,sans-serif;min-height:100vh;padding:16px;position:relative;overflow-x:hidden}
+@media(min-width:900px){body{padding:32px}}
+
+/* ===== Fond commun "Voiles flous" : fixe, sans animation ===== */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:linear-gradient(45deg,#0B0B12 0%,#1A1240 55%,#2A1B5C 100%)}
+.bg i{position:absolute;display:block;background:var(--violet);filter:blur(2.5vw)}
+.bg i:nth-child(1){width:55vw;height:38vw;left:-12vw;top:48vh;opacity:.18;border-radius:62% 38% 55% 45% / 48% 60% 40% 52%}
+.bg i:nth-child(2){width:42vw;height:50vw;left:22vw;top:-18vh;opacity:.14;border-radius:45% 55% 38% 62% / 58% 42% 58% 42%}
+.bg i:nth-child(3){width:48vw;height:34vw;right:-10vw;top:6vh;opacity:.24;border-radius:55% 45% 60% 40% / 40% 58% 42% 60%}
+.bg i:nth-child(4){width:36vw;height:44vw;right:8vw;bottom:-14vh;opacity:.16;border-radius:40% 60% 50% 50% / 55% 45% 55% 45%}
+.bg i:nth-child(5){width:30vw;height:26vw;left:30vw;bottom:4vh;opacity:.12;border-radius:58% 42% 46% 54% / 44% 56% 44% 56%}
+
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto}
+h1{font-weight:700;font-size:28px;line-height:1.15}
+.sub{color:var(--text-muted);margin-top:4px}
+.grid{display:grid;gap:24px;margin-top:24px}
+@media(min-width:900px){.grid{grid-template-columns:400px 1fr}}
+
+/* Cartes : tout texte est posé sur une carte, jamais sur le fond */
+/* Effet verre flou : dégradé translucide sombre vers violet, flou d'arrière-plan */
+.card{background:linear-gradient(135deg,rgba(21,20,31,.62) 0%,rgba(70,48,135,.42) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid rgba(160,140,230,.32);border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.section-title{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px}
+.section-title::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--accent)}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:16px 0 8px}
+.section-title + label{margin-top:0}
+input,select{width:100%;height:44px;background:rgba(11,11,18,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--text);border:1px solid var(--violet-line);border-radius:12px;padding:0 12px;font:500 16px Inter,sans-serif;font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s}
+input{color:var(--number)}
+select option{background:#15141F;color:var(--text)}
+input:focus,select:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px var(--focus-ring)}
+input[type=date]{color-scheme:dark}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.mode{max-width:320px;margin-top:16px}
+.mode label{margin-top:0}
+
+/* Carte mise en avant (une seule) */
+.hero{background:linear-gradient(135deg,rgba(30,27,46,.6) 0%,rgba(85,58,160,.45) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);border:1px solid var(--accent);border-radius:16px;padding:32px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.micro{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.n{color:var(--number);font-variant-numeric:tabular-nums}
+.big{font-weight:700;font-size:48px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--number);margin:8px 0 16px;word-break:break-word}
+.pill{display:inline-block;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;background:rgba(61,214,140,.15);color:var(--success)}
+.pill.neg{background:rgba(255,92,112,.15);color:var(--danger)}
+.kpis{display:grid;gap:16px;margin:24px 0;grid-template-columns:1fr}
+@media(min-width:600px){.kpis{grid-template-columns:repeat(3,1fr)}}
+.kpi{padding:20px}
+.kpi .v{font-weight:700;font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--number);margin-top:8px}
+.note{color:var(--text-muted);font-size:14px;margin-top:16px}
+
+/* Tableau */
+.detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.detail-head select{width:auto;min-width:160px}
+.tbl{overflow:auto;max-height:420px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:rgba(40,28,85,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);text-align:right;padding:8px 12px;border-bottom:1px solid var(--violet-line);white-space:nowrap}
+td{text-align:right;padding:12px;border-bottom:1px solid var(--border);color:var(--number);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td:first-child{color:var(--text)}
+tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
+.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Onglets de l'application */
+.apptabs{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;margin-bottom:24px}
+.apptabs a{text-decoration:none;color:var(--text-muted);font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid var(--border);transition:border-color .2s,color .2s}
+.apptabs a.on{color:var(--accent);border-color:var(--accent)}
+.apptabs a:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus-ring)}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+
+<div class="wrap">
+  <nav class="card apptabs" aria-label="Outils">
+    <a href="./">Budget</a>
+    <a href="calculateur.html" class="on" aria-current="page">Calculateur d'intérêts</a>
+  </nav>
+  <header class="card">
+    <h1>Calculateur d'intérêts</h1>
+    <p class="sub" id="formule"></p>
+    <div class="mode">
+      <label for="mode">Mode</label>
+      <select id="mode"><option value="compound">Intérêt composé</option><option value="simple">Intérêt simple</option></select>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- ===== Hypothèses ===== -->
+    <section class="card">
+      <div class="section-title">Hypothèses</div>
+
+      <label for="devise">Devise</label>
+      <select id="devise"><option value="EUR">Euro (€)</option><option value="USD">Dollar ($)</option><option value="CHF">Franc suisse (CHF)</option></select>
+
+      <label for="principal">Capital initial</label>
+      <input id="principal" type="number" inputmode="decimal" value="5000" min="0" step="any">
+
+      <label for="taux">Taux d'intérêt (%)</label>
+      <div class="row">
+        <input id="taux" type="number" inputmode="decimal" value="5" min="0" step="any">
+        <select id="periodeTaux">
+          <option value="day">par jour</option>
+          <option value="week">par semaine</option>
+          <option value="month">par mois</option>
+          <option value="year" selected>par an</option>
+        </select>
+      </div>
+
+      <div id="blocCap">
+        <label for="capFreq">Fréquence de capitalisation</label>
+        <select id="capFreq">
+          <option value="d1">Quotidienne</option>
+          <option value="d7">Hebdomadaire</option>
+          <option value="m1" selected>Mensuelle</option>
+          <option value="m3">Trimestrielle</option>
+          <option value="m6">Semestrielle</option>
+          <option value="m12">Annuelle</option>
+        </select>
+      </div>
+
+      <label for="debut">Date de début</label>
+      <input id="debut" type="date">
+
+      <label for="modeDuree">Durée</label>
+      <select id="modeDuree"><option value="duree">Saisir une durée</option><option value="fin">Saisir une date de fin</option></select>
+
+      <div id="blocDuree" class="row3" style="margin-top:12px">
+        <div><label for="ans">Années</label><input id="ans" type="number" value="5" min="0" step="1"></div>
+        <div><label for="mois">Mois</label><input id="mois" type="number" value="0" min="0" step="1"></div>
+        <div><label for="jours">Jours</label><input id="jours" type="number" value="0" min="0" step="1"></div>
+      </div>
+      <div id="blocFin" class="hidden" style="margin-top:12px"><input id="fin" type="date" aria-label="Date de fin"></div>
+
+      <label for="typeVers">Versements réguliers</label>
+      <select id="typeVers"><option value="none">Aucun</option><option value="add" selected>Apports</option><option value="sub">Retraits</option></select>
+      <div id="blocVers" class="row" style="margin-top:12px">
+        <div><label for="montantVers">Montant</label><input id="montantVers" type="number" value="10" min="0" step="any"></div>
+        <div><label for="freqVers">Fréquence</label>
+          <select id="freqVers">
+            <option value="d1">Quotidienne</option>
+            <option value="d7">Hebdomadaire</option>
+            <option value="m1" selected>Mensuelle</option>
+            <option value="m3">Trimestrielle</option>
+            <option value="m6">Semestrielle</option>
+            <option value="m12">Annuelle</option>
+          </select></div>
+      </div>
+    </section>
+
+    <!-- ===== Résultats ===== -->
+    <section>
+      <div class="hero">
+        <div class="micro">Solde final</div>
+        <div class="big" id="solde">-</div>
+        <span class="pill" id="gainPill">-</span>
+      </div>
+
+      <div class="kpis">
+        <div class="card kpi"><div class="micro">Intérêts cumulés</div><div class="v" id="interets">-</div></div>
+        <div class="card kpi"><div class="micro">Intérêts mensuels</div><div class="v" id="mensuel">-</div></div>
+        <div class="card kpi"><div class="micro">Date de fin</div><div class="v" id="dateFin">-</div></div>
+      </div>
+
+      <div class="card">
+        <div class="detail-head">
+          <div class="section-title">Détail</div>
+          <select id="bd" aria-label="Découpage">
+            <option value="week">Par semaine</option>
+            <option value="month">Par mois</option>
+            <option value="year" selected>Par année</option>
+          </select>
+        </div>
+        <div class="tbl"><table>
+          <thead><tr><th>Période</th><th>Apports cumulés</th><th>Intérêts cumulés</th><th>Solde</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table></div>
+        <p class="note" id="hyp"></p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ===== Utilitaires ===== */
+const $ = id => document.getElementById(id);
+const DAY = 86400000;
+const toUTC = s => { const [y,m,d] = s.split('-').map(Number); return Date.UTC(y, m-1, d); };
+const fmtDate = ms => new Date(ms).toLocaleDateString('fr-FR', {timeZone:'UTC'});
+// Ajoute n mois à une date (UTC) en gardant le jour si possible
+function addMonths(ms, n){
+  const d = new Date(ms), y = d.getUTCFullYear(), m = d.getUTCMonth() + n, day = d.getUTCDate();
+  const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return Date.UTC(y, m, Math.min(day, last));
+}
+const money = v => new Intl.NumberFormat('fr-FR', {style:'currency', currency:$('devise').value}).format(v);
+const pctFmt = v => v.toLocaleString('fr-FR', {maximumFractionDigits:2}) + ' %';
+const N = s => `<span class="n">${s}</span>`;   // chiffre en menthe
+
+/* Périodes par an pour le taux saisi, et capitalisations par an */
+const PPY = {day:365, week:52, month:12, year:1};
+const CAPS_PER_YEAR = {d1:365, d7:52, m1:12, m3:4, m6:2, m12:1};
+
+/* Indices de jours d'un calendrier : d1, d7 = jours ; m1, m3... = mois */
+function schedule(code, start, limit, withNext){
+  const n = +code.slice(1), out = [];
+  for (let i = 1; ; i++){
+    const idx = code[0] === 'd' ? i*n : Math.round((addMonths(start, i*n) - start) / DAY);
+    if (idx > limit){ if (withNext) out.push(idx); break; }
+    out.push(idx);
+  }
+  return out;
+}
+
+/* ===== Simulation jour par jour ===== */
+function simulate(){
+  const P = +$('principal').value || 0;
+  const ra = (+$('taux').value || 0) / 100 * PPY[$('periodeTaux').value];   // taux annuel nominal
+  if (!$('debut').value) return null;
+  const start = toUTC($('debut').value);
+  let end = $('modeDuree').value === 'duree'
+    ? addMonths(start, 12*(+$('ans').value||0) + (+$('mois').value||0)) + (+$('jours').value||0)*DAY
+    : ($('fin').value ? toUTC($('fin').value) : start);
+  if (end < start) end = start;
+  const D = Math.round((end - start) / DAY);
+  const compound = $('mode').value === 'compound';
+  const m = CAPS_PER_YEAR[$('capFreq').value];
+
+  const caps = [0].concat(schedule($('capFreq').value, start, D, true));
+  const type = $('typeVers').value;
+  const amt = (+$('montantVers').value || 0) * (type === 'sub' ? -1 : 1);
+  const dep = new Set(type !== 'none' && amt !== 0 ? schedule($('freqVers').value, start, D, false) : []);
+
+  const total = new Float64Array(D + 1), cont = new Float64Array(D + 1);
+  let bal = P, pend = 0, contrib = 0, j = 1;
+  total[0] = P;
+  for (let d = 1; d <= D; d++){
+    while (caps[j] < d) j++;
+    if (compound){ pend += bal * (ra / m) / (caps[j] - caps[j-1]); }   // intérêt du jour
+    else { pend += bal * ra / 365; }
+    if (compound && d === caps[j]){ bal += pend; pend = 0; }           // capitalisation
+    if (dep.has(d)){ const a = Math.max(amt, -bal); bal += a; contrib += a; }   // versement en fin de journée
+    total[d] = bal + pend; cont[d] = contrib;
+  }
+  return {P, ra, start, end, D, total, cont, compound, m};
+}
+
+/* ===== Affichage ===== */
+function render(){
+  const s = simulate();
+  if (!s) return;
+  const final = s.total[s.D], contrib = s.cont[s.D], invested = s.P + contrib, interest = final - invested;
+  const months = Math.max(s.D / 30.4375, 0);
+  const eff = s.compound ? Math.pow(1 + s.ra / s.m, s.m) - 1 : s.ra;
+
+  $('formule').textContent = s.compound
+    ? 'Intérêts capitalisés : les intérêts produisent eux-mêmes des intérêts à chaque période de capitalisation.'
+    : 'Intérêts non capitalisés : solde final = capital × (1 + taux × durée en années).';
+
+  $('solde').textContent = money(final);
+  $('interets').textContent = money(interest);
+  $('mensuel').textContent = months > 0 ? money(interest / months) : money(0);
+  $('dateFin').textContent = fmtDate(s.end);
+
+  // Pastille : mot, signe et pourcentage de la même couleur
+  const pct = invested > 0 ? interest / invested * 100 : 0;
+  const pill = $('gainPill');
+  pill.className = 'pill' + (interest < 0 ? ' neg' : '');
+  pill.textContent = (interest >= 0 ? 'Gain +' : 'Perte -') + Math.abs(pct).toLocaleString('fr-FR', {maximumFractionDigits:1}) + ' % sur le capital investi';
+
+  // Lignes du détail selon le découpage
+  const bd = $('bd').value, idxs = [];
+  if (bd === 'week'){ for (let i = 1; i*7 < s.D; i++) idxs.push({i, d:i*7}); }
+  else {
+    const step = bd === 'month' ? 1 : 12;
+    for (let i = 1; ; i++){ const d = Math.round((addMonths(s.start, i*step) - s.start) / DAY); if (d >= s.D) break; idxs.push({i, d}); }
+  }
+  const word = {week:'Semaine ', month:'Mois ', year:'Année '}[bd];
+  const rows = idxs.map(x => ({label: word + N(x.i), d:x.d}));
+  rows.push({label:'Fin (' + N(fmtDate(s.end)) + ')', d:s.D, last:true});
+  $('tbody').innerHTML = rows.map(r => {
+    const c = s.cont[r.d], b = s.total[r.d];
+    return `<tr class="${r.last ? 'total' : ''}"><td>${r.label}</td><td>${money(c)}</td><td>${money(b - s.P - c)}</td><td>${money(b)}</td></tr>`;
+  }).join('');
+
+  const capTxt = {d1:'quotidienne', d7:'hebdomadaire', m1:'mensuelle', m3:'trimestrielle', m6:'semestrielle', m12:'annuelle'}[$('capFreq').value];
+  $('hyp').innerHTML = 'Hypothèses : ' + (s.compound ? 'intérêt composé, capitalisation ' + capTxt + ', taux effectif ' + N(pctFmt(eff * 100)) : 'intérêt simple sans capitalisation') +
+    ', taux nominal ' + N(pctFmt(s.ra * 100)) + ' par an, base ' + N('365') + ' jours, versements en fin de période, pas de frais ni d\'impôts. Estimation, pas un conseil financier.';
+}
+
+/* ===== Interface ===== */
+function maj(){
+  $('blocCap').classList.toggle('hidden', $('mode').value !== 'compound');
+  $('blocDuree').classList.toggle('hidden', $('modeDuree').value !== 'duree');
+  $('blocFin').classList.toggle('hidden', $('modeDuree').value !== 'fin');
+  $('blocVers').classList.toggle('hidden', $('typeVers').value === 'none');
+  render();
+}
+document.querySelectorAll('input,select').forEach(el => el.addEventListener('input', maj));
+$('debut').value = '2026-11-26';
+$('fin').value = '2031-11-26';
+maj();
+</script>
+</body>
+</html>

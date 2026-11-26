@@ -103,6 +103,16 @@
   .btn-danger:hover{background:var(--bad-bg);}
   .btn-ghost{background:transparent;}
 
+  /* ===== ONGLETS DE L'APPLICATION (Budget / Calculateur) ===== */
+  .app-tabs{max-width:1180px; margin:0 auto; padding:0 24px 14px; display:flex; gap:8px; flex-wrap:wrap;}
+  .app-tabs a{
+    text-decoration:none; color:var(--text); font-size:13px; font-weight:600;
+    padding:9px 18px; border-radius:999px; border:1px solid var(--border);
+    background:rgba(255,255,255,0.06); transition:background .15s ease, border-color .15s ease;
+  }
+  .app-tabs a:hover{background:rgba(255,255,255,0.14);}
+  .app-tabs a.on{border-color:var(--accent); background:var(--warn-bg);}
+
   main{max-width:1180px; margin:0 auto; padding:24px;}
 
   .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;}
@@ -299,6 +309,10 @@
       <input type="file" id="importFileInput" accept="application/json" style="display:none;">
     </div>
   </div>
+  <nav class="app-tabs" aria-label="Outils">
+    <a href="./" class="on" aria-current="page">Budget</a>
+    <a href="calculateur.html">Calculateur d'intérêts</a>
+  </nav>
 </header>
 
 <main>
