@@ -1,7 +1,7 @@
 {
-  "name": "Budget",
-  "short_name": "Budget",
-  "description": "Suivi de budget mensuel",
+  "name": "Outils",
+  "short_name": "Outils",
+  "description": "Mes outils : budget, calculateurs, solo mining",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
