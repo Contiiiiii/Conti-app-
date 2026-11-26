@@ -1,6 +1,6 @@
 {
-  "name": "Outils",
-  "short_name": "Outils",
+  "name": "Mes apps",
+  "short_name": "Mes apps",
   "description": "Mes outils : budget, calculateurs, solo mining",
   "lang": "fr",
   "start_url": "./",
