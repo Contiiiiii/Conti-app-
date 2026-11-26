@@ -96,6 +96,7 @@ tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
     <a href="./">Budget</a>
     <a href="calculateur.html">Calculateur d'intérêts</a>
     <a href="salaire.html" class="on" aria-current="page">Années de salaire</a>
+    <a href="solo-mining.html">Solo mining</a>
   </nav>
   <header class="card">
     <h1>Années de salaire</h1>
@@ -213,6 +214,22 @@ function render(){
 }
 document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',render));
 render();
+</script>
+<script>
+/* Sauvegarde automatique des valeurs saisies (stockées dans ce navigateur) */
+(function(){
+  var KEY='conti_outils_'+location.pathname.split('/').pop().replace('.html','');
+  var champs=[].slice.call(document.querySelectorAll('input,select')).filter(function(e){return e.id&&!e.readOnly});
+  var data={};
+  try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  champs.forEach(function(e){if(data[e.id]!==undefined&&data[e.id]!==null)e.value=data[e.id]});
+  champs.forEach(function(e){['input','change'].forEach(function(t){e.dispatchEvent(new Event(t,{bubbles:true}))})});
+  function sauver(){
+    var o={};champs.forEach(function(e){o[e.id]=e.value});
+    try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}
+  }
+  champs.forEach(function(e){e.addEventListener('input',sauver);e.addEventListener('change',sauver)});
+})();
 </script>
 </body>
 </html>

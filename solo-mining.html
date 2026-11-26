@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solo mining</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens charte Outils Conti ===== */
+:root{
+  --bg:#0B0B12; --surface:rgba(21,20,31,.92); --surface-raised:#1E1B2E; --border:#2A2740;
+  --violet:#6D4AFF; --violet-deep:#2A1B5C; --violet-line:rgba(109,74,255,.5);
+  --accent:#5EEAD4; --number:#5EEAD4;
+  --text:#5EEAD4;            /* tout le texte en menthe */
+  --text-muted:#86CFC2;      /* menthe adoucie pour les libellés */
+  --success:#3DD68C; --danger:#FF5C70;
+  --focus-ring:#6D4AFF66;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg)}
+body{color:var(--text);font:400 14px/1.5 Inter,system-ui,sans-serif;min-height:100vh;padding:16px;position:relative;overflow-x:hidden}
+@media(min-width:900px){body{padding:32px}}
+
+/* ===== Fond commun "Voiles flous" : fixe, sans animation ===== */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:linear-gradient(45deg,#0B0B12 0%,#1A1240 55%,#2A1B5C 100%)}
+.bg i{position:absolute;display:block;background:var(--violet);filter:blur(2.5vw)}
+.bg i:nth-child(1){width:55vw;height:38vw;left:-12vw;top:48vh;opacity:.18;border-radius:62% 38% 55% 45% / 48% 60% 40% 52%}
+.bg i:nth-child(2){width:42vw;height:50vw;left:22vw;top:-18vh;opacity:.14;border-radius:45% 55% 38% 62% / 58% 42% 58% 42%}
+.bg i:nth-child(3){width:48vw;height:34vw;right:-10vw;top:6vh;opacity:.24;border-radius:55% 45% 60% 40% / 40% 58% 42% 60%}
+.bg i:nth-child(4){width:36vw;height:44vw;right:8vw;bottom:-14vh;opacity:.16;border-radius:40% 60% 50% 50% / 55% 45% 55% 45%}
+.bg i:nth-child(5){width:30vw;height:26vw;left:30vw;bottom:4vh;opacity:.12;border-radius:58% 42% 46% 54% / 44% 56% 44% 56%}
+
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto}
+h1{font-weight:700;font-size:28px;line-height:1.15}
+.sub{color:var(--text-muted);margin-top:4px}
+.grid{display:grid;gap:24px;margin-top:24px}
+@media(min-width:900px){.grid{grid-template-columns:400px 1fr}}
+
+/* Cartes : tout texte est posé sur une carte, jamais sur le fond */
+/* Effet verre flou : dégradé translucide sombre vers violet, flou d'arrière-plan */
+.card{background:linear-gradient(135deg,rgba(21,20,31,.62) 0%,rgba(70,48,135,.42) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid rgba(160,140,230,.32);border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.section-title{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px}
+.section-title::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--accent)}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:16px 0 8px}
+.section-title + label{margin-top:0}
+input,select{width:100%;height:44px;background:rgba(11,11,18,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--text);border:1px solid var(--violet-line);border-radius:12px;padding:0 12px;font:500 16px Inter,sans-serif;font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s}
+input{color:var(--number)}
+select option{background:#15141F;color:var(--text)}
+input:focus,select:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px var(--focus-ring)}
+input[type=date]{color-scheme:dark}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.mode{max-width:320px;margin-top:16px}
+.mode label{margin-top:0}
+
+/* Carte mise en avant (une seule) */
+.hero{background:linear-gradient(135deg,rgba(30,27,46,.6) 0%,rgba(85,58,160,.45) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);border:1px solid var(--accent);border-radius:16px;padding:32px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.micro{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.n{color:var(--number);font-variant-numeric:tabular-nums}
+.big{font-weight:700;font-size:48px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--number);margin:8px 0 16px;word-break:break-word}
+.pill{display:inline-block;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;background:rgba(61,214,140,.15);color:var(--success)}
+.pill.neg{background:rgba(255,92,112,.15);color:var(--danger)}
+.kpis{display:grid;gap:16px;margin:24px 0;grid-template-columns:1fr}
+@media(min-width:600px){.kpis{grid-template-columns:repeat(3,1fr)}}
+.kpi{padding:20px}
+.kpi .v{font-weight:700;font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--number);margin-top:8px}
+.note{color:var(--text-muted);font-size:14px;margin-top:16px}
+
+/* Tableau */
+.detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.detail-head select{width:auto;min-width:160px}
+.tbl{overflow:auto;max-height:420px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:rgba(40,28,85,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);text-align:right;padding:8px 12px;border-bottom:1px solid var(--violet-line);white-space:nowrap}
+td{text-align:right;padding:12px;border-bottom:1px solid var(--border);color:var(--number);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td:first-child{color:var(--text)}
+tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
+.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.nom{color:var(--text)!important;font-variant-numeric:normal!important}
+.lignes{display:grid;gap:8px;margin-top:16px}
+.ligne{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ligne:last-child{border-bottom:none}
+.ligne span:first-child{color:var(--text-muted)}
+.liens{margin-top:12px;font-size:14px}
+.liens a{color:var(--accent);text-decoration:underline}
+.ro{opacity:.75}
+.row{align-items:end}
+.row label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+label{min-height:16px}
+input,select{height:44px;box-sizing:border-box}
+.kpis{align-items:stretch}
+.kpi{display:flex;flex-direction:column;justify-content:space-between}
+table.chances th:last-child,table.chances td:last-child{text-align:right}
+table.chances th:first-child,table.chances td:first-child{text-align:left}
+.apptabs{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;margin-bottom:24px}
+.apptabs a{text-decoration:none;color:var(--text-muted);font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid var(--border);transition:border-color .2s,color .2s}
+.apptabs a.on{color:var(--accent);border-color:var(--accent)}
+.apptabs a:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus-ring)}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="wrap">
+  <nav class="card apptabs" aria-label="Outils">
+    <a href="./">Budget</a>
+    <a href="calculateur.html">Calculateur d'intérêts</a>
+    <a href="salaire.html">Années de salaire</a>
+    <a href="solo-mining.html" class="on" aria-current="page">Solo mining</a>
+  </nav>
+  <header class="card">
+    <h1 id="titre">Solo mining</h1>
+    <p class="sub">Tes chances de trouver un bloc seul, face au coût réel de ton électricité</p>
+  </header>
+  <div class="grid">
+    <div>
+      <section class="card">
+        <div class="section-title">Ton mineur</div>
+        <label for="nom">Nom du mineur</label>
+        <input id="nom" class="nom" type="text" value="NerdQaxe++" maxlength="40">
+        <div class="row">
+          <div><label for="nb">Nombre de mineurs</label><input id="nb" type="number" data-sep inputmode="decimal" value="1" min="0" step="1"></div>
+          <div><label for="ths">Hashrate (TH/s)</label><input id="ths" type="number" data-sep inputmode="decimal" value="4.8" min="0" step="any"></div>
+        </div>
+        <div class="row">
+          <div><label for="watt">Consommation (W)</label><input id="watt" type="number" data-sep inputmode="decimal" value="80" min="0" step="any"></div>
+          <div><label for="kwh">Électricité (€/kWh)</label><input id="kwh" type="number" data-sep inputmode="decimal" value="0.23299" min="0" step="any"></div>
+        </div>
+        <label for="achat">Prix d'achat total (€)</label>
+        <input id="achat" type="number" data-sep inputmode="decimal" value="0" min="0" step="any">
+        <div class="lignes" id="elec"></div>
+      </section>
+
+      <section class="card" style="margin-top:24px">
+        <div class="section-title">Réseau Bitcoin</div>
+        <div class="row">
+          <div><label for="diff">Difficulté (T)</label><input id="diff" type="number" data-sep inputmode="decimal" value="134.82" min="0" step="any"></div>
+          <div><label for="prix">Prix du BTC ($)</label><input id="prix" type="number" data-sep inputmode="decimal" value="60939" min="0" step="any"></div>
+        </div>
+        <div class="row">
+          <div><label for="rec">Récompense (BTC)</label><input id="rec" type="number" data-sep inputmode="decimal" value="3.125" min="0" step="any"></div>
+          <div><label for="hrRes">Hashrate réseau (EH/s)</label><input id="hrRes" class="ro" type="text" readonly tabindex="-1"></div>
+        </div>
+        <div class="row">
+          <div><label for="crois">Hausse difficulté / an (%)</label><input id="crois" type="number" data-sep inputmode="decimal" value="0" min="0" step="any"></div>
+          <div><label for="frais">Frais du pool (%)</label><input id="frais" type="number" data-sep inputmode="decimal" value="0" min="0" step="any"></div>
+        </div>
+        <div class="row">
+          <div><label for="ans">Durée (années)</label><input id="ans" type="number" inputmode="decimal" value="5" min="1" max="50" step="1"></div>
+          <div><label for="taux">1 $ en euros</label><input id="taux" type="number" data-sep inputmode="decimal" value="0.895" min="0" step="any"></div>
+        </div>
+        <p class="note">Valeurs du 26/11/2026 : difficulté et prix Braiins (60 939 $), taux de change approximatif, récompense de base sans frais de transaction. À mettre à jour à la main.</p>
+        <p class="liens">Données en direct : <a href="https://hashpower.braiins.com/tools/solo-calculator?chain=BTC&window=year" target="_blank" rel="noopener">Braiins</a> et <a href="https://mempool.space/mining" target="_blank" rel="noopener">mempool.space</a></p>
+      </section>
+    </div>
+
+    <div>
+      <section class="hero">
+        <div class="micro">Chance de trouver au moins un bloc</div>
+        <div class="big" id="proba">0</div>
+        <span class="pill neg" id="pill"></span>
+      </section>
+      <div class="kpis">
+        <div class="card kpi"><div class="micro">Une chance sur</div><div class="v" id="kOdds">0</div></div>
+        <div class="card kpi"><div class="micro">Temps moyen pour un bloc</div><div class="v" id="kTemps">0</div></div>
+        <div class="card kpi"><div class="micro">Revenu si tu trouves un bloc</div><div class="v" id="kRev">0</div></div>
+      </div>
+      <section class="card">
+        <div class="section-title">Chance de trouver un bloc</div>
+        <div class="tbl" style="max-height:none"><table class="chances">
+          <thead><tr><th>Période</th><th>Chance de trouver un bloc</th></tr></thead>
+          <tbody id="chances"></tbody>
+        </table></div>
+      </section>
+      <div class="kpis">
+        <div class="card kpi"><div class="micro">Électricité sur la durée</div><div class="v" id="kCout">0</div></div>
+        <div class="card kpi"><div class="micro">Achat des mineurs</div><div class="v" id="kAchat">0</div></div>
+        <div class="card kpi"><div class="micro">Électricité par an</div><div class="v" id="kEV">0</div></div>
+      </div>
+      <section class="card">
+        <div class="section-title">Détail par année</div>
+        <div class="tbl"><table>
+          <thead><tr><th>Année</th><th>Électricité cumulée</th><th>Chance cumulée</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table></div>
+        <p class="note" id="hyp"></p>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const N=s=>'<span class="n">'+s+'</span>';
+/* Séparateur de milliers pendant la saisie (10 000, 1 000 000) */
+function lire(id){return parseFloat(String($(id).value).replace(/\s/g,'').replace(',','.'))||0}
+function espacer(el){
+  const pos=el.selectionStart, avant=el.value.slice(0,pos).replace(/[^\d]/g,'').length;
+  let v=el.value.replace(/[^\d.,]/g,'').replace('.',',');
+  const i=v.indexOf(','); let ent=i<0?v:v.slice(0,i), dec=i<0?'':v.slice(i).replace(/,/g,(m,k)=>k?'':',');
+  ent=ent.replace(/,/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  el.value=ent+dec;
+  let n=0,p=0; while(p<el.value.length&&n<avant){if(/\d/.test(el.value[p]))n++;p++}
+  try{el.setSelectionRange(p,p)}catch(e){}
+}
+document.querySelectorAll('input[data-sep]').forEach(el=>{
+  el.type='text'; el.inputMode='decimal';
+  el.value=String(el.value).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  el.addEventListener('input',()=>espacer(el));
+});
+const eur=(v,d=0)=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:d,minimumFractionDigits:d}).format(v);
+const nf=(v,d=2)=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d}).format(v);
+function pct(p){
+  const x=p*100;
+  if(x>=99.995)return '100';
+  if(x>=1)return nf(x,2);
+  if(x>=0.0001)return nf(x,4);
+  return '< 0,0001';
+}
+function render(){
+  const nom=$('nom').value.trim()||'Mineur';
+  $('titre').textContent='Solo mining : '+nom;
+  const nb=lire('nb'), th=lire('ths'), H=nb*th*1e12, W=nb*lire('watt');
+  const kwh=lire('kwh'), D0=lire('diff')*1e12, rec=lire('rec'), prixUSD=lire('prix'), prix=prixUSD*lire('taux');
+  const g=lire('crois')/100, fee=Math.min(100,lire('frais'))/100, achat=lire('achat');
+  const T=Math.max(1,Math.min(50,Math.round(lire('ans'))||1));
+  const hash=D0*Math.pow(2,32);
+  const lam0=hash>0?H*365*86400/hash:0;
+  $('hrRes').value=hash>0?nf(hash/600/1e18,0):'';
+  // électricité
+  const kwhJ=W/1000*24, coutJ=kwhJ*kwh;
+  $('elec').innerHTML=
+    '<div class="ligne"><span>Hashrate total ('+nf(nb,0)+' x '+nf(th,2)+' TH/s)</span>'+N(nf(nb*th,2)+' TH/s')+'</div>'+
+    '<div class="ligne"><span>Consommation par jour</span>'+N(nf(kwhJ,2)+' kWh')+'</div>'+
+    '<div class="ligne"><span>Électricité par jour</span>'+N(eur(coutJ,2))+'</div>'+
+    '<div class="ligne"><span>Électricité par mois</span>'+N(eur(coutJ*365/12,2))+'</div>'+
+    '<div class="ligne"><span>Électricité par an</span>'+N(eur(coutJ*365,0))+'</div>'+
+    '<div class="ligne"><span>Efficacité</span>'+N(th>0?nf(lire('watt')/th,1)+' J/TH':'-')+'</div>';
+  // projection par année
+  let cumLam=0,cumCost=0,tb=[];
+  for(let y=1;y<=T;y++){
+    const lam=lam0/Math.pow(1+g,y-1);
+    cumLam+=lam; cumCost+=coutJ*365;
+    tb.push({y,cost:cumCost,ev:cumLam*rec*prix*(1-fee),p:1-Math.exp(-cumLam)});
+  }
+  const p=1-Math.exp(-cumLam), ev=cumLam*rec*prix*(1-fee), net=ev-cumCost-achat;
+  $('proba').innerHTML=N(pct(p)+' %');
+  $('pill').textContent='Perte sèche -'+eur(cumCost+achat)+' (électricité + achat) sur '+T+' an'+(T>1?'s':'');
+  $('pill').className='pill neg';
+  const tm=lam0>0?1/lam0:Infinity;
+  $('kOdds').innerHTML=N(lam0>0?nf(Math.round(hash/(H*600)),0):'-');
+  $('kTemps').innerHTML=N(isFinite(tm)?(tm>=100?nf(tm,0):nf(tm,1))+' ans':'infini');
+  $('kRev').innerHTML=N(eur(rec*prix*(1-fee)));
+  const rows=[['1 jour',1],['1 semaine',7],['1 mois',30],['1 an',365],[T+' an'+(T>1?'s':'')+' (durée)',365*T]];
+  $('chances').innerHTML=rows.map(([l,j])=>{
+    const pj=j===365*T&&T>1?p:1-Math.exp(-lam0*j/365);
+    return '<tr><td>'+l+'</td><td>'+pct(pj)+' % soit 1 chance sur '+(pj>0?nf(Math.round(1/pj),0):'-')+'</td></tr>';
+  }).join('');
+  $('kCout').innerHTML=N(eur(cumCost));
+  $('kAchat').innerHTML=N(eur(achat));
+  $('kEV').innerHTML=N(eur(coutJ*365));
+  $('tbody').innerHTML=tb.map(r=>'<tr><td>Année '+r.y+'</td><td>'+eur(r.cost)+'</td><td>'+pct(r.p)+' %</td></tr>').join('');
+  $('hyp').textContent='Hypothèses : '+nb+' x '+nom+' de '+nf(th,2)+' TH/s ('+nf(lire('watt'),0)+' W), électricité à '+nf(kwh,5)+' €/kWh, difficulté '+nf(D0/1e12,2)+' T, récompense '+nf(rec,3)+' BTC à '+nf(prixUSD,0)+' $ ('+eur(prix)+' à '+nf(lire('taux'),3)+' €/$), pool à '+nf(fee*100,1)+' % de frais, hausse de difficulté '+nf(g*100,1)+' % par an'+(achat?', achat '+eur(achat)+' compté dans la perte sèche':'')+'. Si tu trouves un bloc, tu gagnes un bloc entier ; sinon tu ne gagnes rien. Le prix du BTC, la difficulté et le halving (prochain vers 2028) changent le résultat.';
+}
+document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',render));
+render();
+</script>
+<script>
+/* Sauvegarde automatique des valeurs saisies (stockées dans ce navigateur) */
+(function(){
+  var KEY='conti_outils_'+location.pathname.split('/').pop().replace('.html','');
+  var champs=[].slice.call(document.querySelectorAll('input,select')).filter(function(e){return e.id&&!e.readOnly});
+  var data={};
+  try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  champs.forEach(function(e){if(data[e.id]!==undefined&&data[e.id]!==null)e.value=data[e.id]});
+  champs.forEach(function(e){['input','change'].forEach(function(t){e.dispatchEvent(new Event(t,{bubbles:true}))})});
+  function sauver(){
+    var o={};champs.forEach(function(e){o[e.id]=e.value});
+    try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}
+  }
+  champs.forEach(function(e){e.addEventListener('input',sauver);e.addEventListener('change',sauver)});
+})();
+</script>
+</body>
+</html>
