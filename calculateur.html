@@ -4,9 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calculateur d'intérêts</title>
-<meta name="theme-color" content="#0B0B12">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -86,8 +83,6 @@ td:first-child{color:var(--text)}
 tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
 .hidden{display:none}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
-
-/* Onglets de l'application */
 .apptabs{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;margin-bottom:24px}
 .apptabs a{text-decoration:none;color:var(--text-muted);font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid var(--border);transition:border-color .2s,color .2s}
 .apptabs a.on{color:var(--accent);border-color:var(--accent)}
@@ -101,6 +96,7 @@ tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
   <nav class="card apptabs" aria-label="Outils">
     <a href="./">Budget</a>
     <a href="calculateur.html" class="on" aria-current="page">Calculateur d'intérêts</a>
+    <a href="salaire.html">Années de salaire</a>
   </nav>
   <header class="card">
     <h1>Calculateur d'intérêts</h1>
@@ -120,11 +116,11 @@ tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
       <select id="devise"><option value="EUR">Euro (€)</option><option value="USD">Dollar ($)</option><option value="CHF">Franc suisse (CHF)</option></select>
 
       <label for="principal">Capital initial</label>
-      <input id="principal" type="number" inputmode="decimal" value="5000" min="0" step="any">
+      <input id="principal" type="number" data-sep inputmode="decimal" value="5000" min="0" step="any">
 
       <label for="taux">Taux d'intérêt (%)</label>
       <div class="row">
-        <input id="taux" type="number" inputmode="decimal" value="5" min="0" step="any">
+        <input id="taux" type="number" data-sep inputmode="decimal" value="5" min="0" step="any">
         <select id="periodeTaux">
           <option value="day">par jour</option>
           <option value="week">par semaine</option>
@@ -161,7 +157,7 @@ tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
       <label for="typeVers">Versements réguliers</label>
       <select id="typeVers"><option value="none">Aucun</option><option value="add" selected>Apports</option><option value="sub">Retraits</option></select>
       <div id="blocVers" class="row" style="margin-top:12px">
-        <div><label for="montantVers">Montant</label><input id="montantVers" type="number" value="10" min="0" step="any"></div>
+        <div><label for="montantVers">Montant</label><input id="montantVers" type="number" data-sep value="10" min="0" step="any"></div>
         <div><label for="freqVers">Fréquence</label>
           <select id="freqVers">
             <option value="d1">Quotidienne</option>
@@ -210,6 +206,23 @@ tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
 <script>
 /* ===== Utilitaires ===== */
 const $ = id => document.getElementById(id);
+
+/* Séparateur de milliers pendant la saisie (10 000, 1 000 000) */
+function lire(id){return parseFloat(String($(id).value).replace(/\s/g,'').replace(',','.'))||0}
+function espacer(el){
+  const pos=el.selectionStart, avant=el.value.slice(0,pos).replace(/[^\d]/g,'').length;
+  let v=el.value.replace(/[^\d.,]/g,'').replace('.',',');
+  const i=v.indexOf(','); let ent=i<0?v:v.slice(0,i), dec=i<0?'':v.slice(i).replace(/,/g,(m,k)=>k?'':',');
+  ent=ent.replace(/,/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  el.value=ent+dec;
+  let n=0,p=0; while(p<el.value.length&&n<avant){if(/\d/.test(el.value[p]))n++;p++}
+  try{el.setSelectionRange(p,p)}catch(e){}
+}
+document.querySelectorAll('input[data-sep]').forEach(el=>{
+  el.type='text'; el.inputMode='decimal';
+  el.value=String(el.value).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  el.addEventListener('input',()=>espacer(el));
+});
 const DAY = 86400000;
 const toUTC = s => { const [y,m,d] = s.split('-').map(Number); return Date.UTC(y, m-1, d); };
 const fmtDate = ms => new Date(ms).toLocaleDateString('fr-FR', {timeZone:'UTC'});
@@ -240,8 +253,8 @@ function schedule(code, start, limit, withNext){
 
 /* ===== Simulation jour par jour ===== */
 function simulate(){
-  const P = +$('principal').value || 0;
-  const ra = (+$('taux').value || 0) / 100 * PPY[$('periodeTaux').value];   // taux annuel nominal
+  const P = lire('principal') || 0;
+  const ra = (lire('taux') || 0) / 100 * PPY[$('periodeTaux').value];   // taux annuel nominal
   if (!$('debut').value) return null;
   const start = toUTC($('debut').value);
   let end = $('modeDuree').value === 'duree'
@@ -254,7 +267,7 @@ function simulate(){
 
   const caps = [0].concat(schedule($('capFreq').value, start, D, true));
   const type = $('typeVers').value;
-  const amt = (+$('montantVers').value || 0) * (type === 'sub' ? -1 : 1);
+  const amt = (lire('montantVers') || 0) * (type === 'sub' ? -1 : 1);
   const dep = new Set(type !== 'none' && amt !== 0 ? schedule($('freqVers').value, start, D, false) : []);
 
   const total = new Float64Array(D + 1), cont = new Float64Array(D + 1);

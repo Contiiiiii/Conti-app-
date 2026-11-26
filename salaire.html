@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Années de salaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens charte Outils Conti ===== */
+:root{
+  --bg:#0B0B12; --surface:rgba(21,20,31,.92); --surface-raised:#1E1B2E; --border:#2A2740;
+  --violet:#6D4AFF; --violet-deep:#2A1B5C; --violet-line:rgba(109,74,255,.5);
+  --accent:#5EEAD4; --number:#5EEAD4;
+  --text:#5EEAD4;            /* tout le texte en menthe */
+  --text-muted:#86CFC2;      /* menthe adoucie pour les libellés */
+  --success:#3DD68C; --danger:#FF5C70;
+  --focus-ring:#6D4AFF66;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg)}
+body{color:var(--text);font:400 14px/1.5 Inter,system-ui,sans-serif;min-height:100vh;padding:16px;position:relative;overflow-x:hidden}
+@media(min-width:900px){body{padding:32px}}
+
+/* ===== Fond commun "Voiles flous" : fixe, sans animation ===== */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:linear-gradient(45deg,#0B0B12 0%,#1A1240 55%,#2A1B5C 100%)}
+.bg i{position:absolute;display:block;background:var(--violet);filter:blur(2.5vw)}
+.bg i:nth-child(1){width:55vw;height:38vw;left:-12vw;top:48vh;opacity:.18;border-radius:62% 38% 55% 45% / 48% 60% 40% 52%}
+.bg i:nth-child(2){width:42vw;height:50vw;left:22vw;top:-18vh;opacity:.14;border-radius:45% 55% 38% 62% / 58% 42% 58% 42%}
+.bg i:nth-child(3){width:48vw;height:34vw;right:-10vw;top:6vh;opacity:.24;border-radius:55% 45% 60% 40% / 40% 58% 42% 60%}
+.bg i:nth-child(4){width:36vw;height:44vw;right:8vw;bottom:-14vh;opacity:.16;border-radius:40% 60% 50% 50% / 55% 45% 55% 45%}
+.bg i:nth-child(5){width:30vw;height:26vw;left:30vw;bottom:4vh;opacity:.12;border-radius:58% 42% 46% 54% / 44% 56% 44% 56%}
+
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto}
+h1{font-weight:700;font-size:28px;line-height:1.15}
+.sub{color:var(--text-muted);margin-top:4px}
+.grid{display:grid;gap:24px;margin-top:24px}
+@media(min-width:900px){.grid{grid-template-columns:400px 1fr}}
+
+/* Cartes : tout texte est posé sur une carte, jamais sur le fond */
+/* Effet verre flou : dégradé translucide sombre vers violet, flou d'arrière-plan */
+.card{background:linear-gradient(135deg,rgba(21,20,31,.62) 0%,rgba(70,48,135,.42) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);
+  border:1px solid rgba(160,140,230,.32);border-radius:16px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.section-title{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px}
+.section-title::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--accent)}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:16px 0 8px}
+.section-title + label{margin-top:0}
+input,select{width:100%;height:44px;background:rgba(11,11,18,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--text);border:1px solid var(--violet-line);border-radius:12px;padding:0 12px;font:500 16px Inter,sans-serif;font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s}
+input{color:var(--number)}
+select option{background:#15141F;color:var(--text)}
+input:focus,select:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px var(--focus-ring)}
+input[type=date]{color-scheme:dark}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.mode{max-width:320px;margin-top:16px}
+.mode label{margin-top:0}
+
+/* Carte mise en avant (une seule) */
+.hero{background:linear-gradient(135deg,rgba(30,27,46,.6) 0%,rgba(85,58,160,.45) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);border:1px solid var(--accent);border-radius:16px;padding:32px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.micro{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.n{color:var(--number);font-variant-numeric:tabular-nums}
+.big{font-weight:700;font-size:48px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--number);margin:8px 0 16px;word-break:break-word}
+.pill{display:inline-block;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;background:rgba(61,214,140,.15);color:var(--success)}
+.pill.neg{background:rgba(255,92,112,.15);color:var(--danger)}
+.kpis{display:grid;gap:16px;margin:24px 0;grid-template-columns:1fr}
+@media(min-width:600px){.kpis{grid-template-columns:repeat(3,1fr)}}
+.kpi{padding:20px}
+.kpi .v{font-weight:700;font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--number);margin-top:8px}
+.note{color:var(--text-muted);font-size:14px;margin-top:16px}
+
+/* Tableau */
+.detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.detail-head select{width:auto;min-width:160px}
+.tbl{overflow:auto;max-height:420px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:rgba(40,28,85,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);text-align:right;padding:8px 12px;border-bottom:1px solid var(--violet-line);white-space:nowrap}
+td{text-align:right;padding:12px;border-bottom:1px solid var(--border);color:var(--number);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td:first-child{color:var(--text)}
+tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
+.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.apptabs{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;margin-bottom:24px}
+.apptabs a{text-decoration:none;color:var(--text-muted);font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid var(--border);transition:border-color .2s,color .2s}
+.apptabs a.on{color:var(--accent);border-color:var(--accent)}
+.apptabs a:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus-ring)}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="wrap">
+  <nav class="card apptabs" aria-label="Outils">
+    <a href="./">Budget</a>
+    <a href="calculateur.html">Calculateur d'intérêts</a>
+    <a href="salaire.html" class="on" aria-current="page">Années de salaire</a>
+  </nav>
+  <header class="card">
+    <h1>Années de salaire</h1>
+    <p class="sub" id="formule"></p>
+  </header>
+  <div class="grid">
+    <section class="card">
+      <div class="section-title">Hypothèses</div>
+      <label for="devise">Devise</label>
+      <select id="devise"><option value="EUR">Euro (€)</option><option value="USD">Dollar ($)</option><option value="CHF">Franc suisse (CHF)</option></select>
+
+      <label for="salaire">Ton salaire</label>
+      <div class="row">
+        <input id="salaire" type="number" data-sep inputmode="decimal" value="1477.93" min="0" step="any">
+        <select id="periode"><option value="m" selected>par mois</option><option value="a">par an</option></select>
+      </div>
+      <p class="note" style="margin-top:8px">SMIC net 35 h depuis le 01/06/2026 : 1 477,93 € par mois (info.gouv.fr).</p>
+
+      <label for="cible">Somme à atteindre</label>
+      <input id="cible" type="number" data-sep inputmode="decimal" value="1000000" min="0" step="any">
+
+      <label for="dejaLa">Capital déjà possédé</label>
+      <input id="dejaLa" type="number" data-sep inputmode="decimal" value="0" min="0" step="any">
+
+      <label for="epargne">Part du salaire mise de côté (%)</label>
+      <input id="epargne" type="number" inputmode="decimal" value="100" min="0" max="100" step="any" data-sep>
+
+      <div class="row">
+        <div><label for="nbMois">Salaires par an</label><select id="nbMois"><option value="12" selected>12</option><option value="13">13</option></select></div>
+        <div><label for="augm">Augmentation par an (%)</label><input id="augm" type="number" data-sep inputmode="decimal" value="0" min="0" step="any"></div>
+      </div>
+      <p class="note">Seule la part mise de côté compte (ex. 20 % de 1 000 € = 200 € par mois). Les dépenses, impôts et l'inflation ne sont pas comptés.</p>
+    </section>
+
+    <div>
+      <section class="hero">
+        <div class="micro" id="heroLabel">Durée pour atteindre l'objectif</div>
+        <div class="big" id="duree">0</div>
+        <span class="pill" id="pill"></span>
+      </section>
+      <div class="kpis">
+        <div class="card kpi"><div class="micro">Années de salaire</div><div class="v" id="kAns">0</div></div>
+        <div class="card kpi"><div class="micro">Salaires cumulés</div><div class="v" id="kNb">0</div></div>
+        <div class="card kpi"><div class="micro">Date estimée</div><div class="v" id="kDate">0</div></div>
+      </div>
+      <section class="card">
+        <div class="section-title">Détail par année</div>
+        <div class="tbl"><table>
+          <thead><tr><th>Année</th><th>Salaire annuel</th><th>Cumul</th><th>Objectif</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table></div>
+        <p class="note" id="hyp"></p>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+
+/* Séparateur de milliers pendant la saisie (10 000, 1 000 000) */
+function lire(id){return parseFloat(String($(id).value).replace(/\s/g,'').replace(',','.'))||0}
+function espacer(el){
+  const pos=el.selectionStart, avant=el.value.slice(0,pos).replace(/[^\d]/g,'').length;
+  let v=el.value.replace(/[^\d.,]/g,'').replace('.',',');
+  const i=v.indexOf(','); let ent=i<0?v:v.slice(0,i), dec=i<0?'':v.slice(i).replace(/,/g,(m,k)=>k?'':',');
+  ent=ent.replace(/,/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  el.value=ent+dec;
+  let n=0,p=0; while(p<el.value.length&&n<avant){if(/\d/.test(el.value[p]))n++;p++}
+  try{el.setSelectionRange(p,p)}catch(e){}
+}
+document.querySelectorAll('input[data-sep]').forEach(el=>{
+  el.type='text'; el.inputMode='decimal';
+  el.value=String(el.value).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  el.addEventListener('input',()=>espacer(el));
+});
+const N=s=>'<span class="n">'+s+'</span>';
+function render(){
+  const cur=$('devise').value;
+  const money=v=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:cur,maximumFractionDigits:0}).format(v);
+  const num=(v,d=2)=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d}).format(v);
+  const nb=+$('nbMois').value, g=Math.max(0,lire('augm'))/100;
+  let sal=lire('salaire'); const part=Math.min(100,Math.max(0,lire('epargne')))/100;
+  const brut0=$('periode').value==='m'?sal*nb:sal; const annuel0=brut0*part;
+  const cible=lire('cible'), dep=lire('dejaLa');
+  const reste=cible-dep;
+  $('formule').textContent='Combien d\'années de salaire pour atteindre ton objectif, dépenses non comptées';
+  const tb=[];let cum=dep,years=0,done=false,res=null;
+  if(reste<=0){res=0;done=true}
+  else if(annuel0<=0){res=null}
+  else{
+    let a=annuel0;
+    for(let y=1;y<=200;y++){
+      const avant=cum;cum+=a;
+      if(y<=60||cum>=cible)tb.push({y,a,cum});
+      if(!done&&cum>=cible){res=(y-1)+(cible-avant)/a;done=true;break}
+      a*=1+g;
+    }
+  }
+  if(res===null){
+    $('duree').innerHTML=N('Inatteignable');$('pill').textContent='Salaire nul ou objectif hors de portée en 200 ans';$('pill').className='pill neg';
+    $('kAns').innerHTML=N('0');$('kNb').innerHTML=N('0');$('kDate').innerHTML=N('0');$('tbody').innerHTML='';
+  }else{
+    const ans=Math.floor(res), mois=Math.ceil((res-ans)*12-1e-9);
+    const A=ans+(mois===12?1:0), M=mois===12?0:mois;
+    $('duree').innerHTML=N(A+' an'+(A>1?'s':'')+' '+M+' mois');
+    const pct=cible>0?Math.min(100,dep/cible*100):100;
+    $('pill').textContent='Départ : '+num(pct,1)+' % de l\'objectif déjà atteint';$('pill').className='pill';
+    $('kAns').innerHTML=N(num(res,2));
+    $('kNb').innerHTML=N(num(Math.ceil(res*nb)));
+    const d=new Date();d.setMonth(d.getMonth()+Math.ceil(res*12));
+    $('kDate').innerHTML=N(d.toLocaleDateString('fr-FR',{month:'2-digit',year:'numeric'}));
+    $('tbody').innerHTML=tb.map(r=>'<tr><td>Année '+r.y+'</td><td>'+money(r.a)+'</td><td>'+money(r.cum)+'</td><td>'+num(Math.min(999,r.cum/cible*100),1)+' %</td></tr>').join('');
+  }
+  $('hyp').textContent='Hypothèses : '+money(annuel0)+' mis de côté la première année ('+num(part*100,1)+' % de '+money(brut0)+', '+nb+' salaires), augmentation de '+num(g*100,1)+' % par an, capital de départ '+money(dep)+', aucun rendement, aucune dépense, aucun impôt. Estimation, pas une prévision.';
+}
+document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',render));
+render();
+</script>
+</body>
+</html>

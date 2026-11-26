@@ -1,11 +1,12 @@
 /* Service worker du tracker Budget.
    Réseau d'abord (pour recevoir les mises à jour), copie en cache en secours (hors connexion).
    Il ne touche pas aux données : elles restent dans le localStorage du navigateur. */
-const CACHE = "budget-app-v3";
+const CACHE = "budget-app-v4";
 const CORE = [
   "./",
   "index.html",
   "calculateur.html",
+  "salaire.html",
   "chart.umd.js",
   "manifest.webmanifest",
   "icon-192.png",
