@@ -1,7 +1,7 @@
 /* Service worker du tracker Budget.
    Réseau d'abord (pour recevoir les mises à jour), copie en cache en secours (hors connexion).
    Il ne touche pas aux données : elles restent dans le localStorage du navigateur. */
-const CACHE = "budget-app-v5";
+const CACHE = "budget-app-v6";
 const CORE = [
   "./",
   "index.html",
@@ -11,6 +11,7 @@ const CORE = [
   "chart.umd.js",
   "manifest.webmanifest",
   "icon-192.png",
+  "icon.svg",
   "icon-512.png",
   "apple-touch-icon.png"
 ];
