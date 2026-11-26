@@ -85,6 +85,7 @@ th:first-child,td:first-child{text-align:left}
 td:first-child{color:var(--text)}
 tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
 .hidden{display:none}
+.nom{color:var(--text)!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .apptabs{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;margin-bottom:24px}
 .apptabs a{text-decoration:none;color:var(--text-muted);font-weight:600;padding:9px 18px;border-radius:999px;border:1px solid var(--border);transition:border-color .2s,color .2s}
@@ -106,49 +107,76 @@ tr.total td{font-weight:700;background:rgba(109,74,255,.2);border-bottom:none}
     <p class="sub" id="formule"></p>
   </header>
   <div class="grid">
-    <section class="card">
-      <div class="section-title">Hypothèses</div>
-      <label for="devise">Devise</label>
-      <select id="devise"><option value="EUR">Euro (€)</option><option value="USD">Dollar ($)</option><option value="CHF">Franc suisse (CHF)</option></select>
+    <div>
+      <section class="card">
+        <div class="section-title">Objectif commun</div>
+        <label for="devise">Devise</label>
+        <select id="devise"><option value="EUR">Euro (€)</option><option value="USD">Dollar ($)</option><option value="CHF">Franc suisse (CHF)</option></select>
+        <label for="cible">Somme à atteindre</label>
+        <input id="cible" type="number" data-sep inputmode="decimal" value="1000000" min="0" step="any">
+        <label for="dejaLa">Capital déjà possédé</label>
+        <input id="dejaLa" type="number" data-sep inputmode="decimal" value="0" min="0" step="any">
+        <p class="note">SMIC net 35 h depuis le 01/06/2026 : 1 477,93 € par mois (info.gouv.fr).</p>
+      </section>
 
-      <label for="salaire">Ton salaire</label>
-      <div class="row">
-        <input id="salaire" type="number" data-sep inputmode="decimal" value="1477.93" min="0" step="any">
-        <select id="periode"><option value="m" selected>par mois</option><option value="a">par an</option></select>
-      </div>
-      <p class="note" style="margin-top:8px">SMIC net 35 h depuis le 01/06/2026 : 1 477,93 € par mois (info.gouv.fr).</p>
+      <section class="card" style="margin-top:24px">
+        <div class="section-title">Premier salaire</div>
+        <label for="nomA">Nom</label>
+        <input id="nomA" class="nom" type="text" value="Salaire 1" maxlength="30">
+        <label for="salaire">Montant</label>
+        <div class="row">
+          <input id="salaire" type="number" data-sep inputmode="decimal" value="1477.93" min="0" step="any">
+          <select id="periode"><option value="m" selected>par mois</option><option value="a">par an</option></select>
+        </div>
+        <label for="epargne">Part mise de côté (%)</label>
+        <input id="epargne" type="number" inputmode="decimal" value="100" min="0" max="100" step="any" data-sep>
+        <div class="row">
+          <div><label for="nbMois">Salaires par an</label><select id="nbMois"><option value="12" selected>12</option><option value="13">13</option></select></div>
+          <div><label for="augm">Hausse par an (%)</label><input id="augm" type="number" data-sep inputmode="decimal" value="0" min="0" step="any"></div>
+        </div>
+      </section>
 
-      <label for="cible">Somme à atteindre</label>
-      <input id="cible" type="number" data-sep inputmode="decimal" value="1000000" min="0" step="any">
-
-      <label for="dejaLa">Capital déjà possédé</label>
-      <input id="dejaLa" type="number" data-sep inputmode="decimal" value="0" min="0" step="any">
-
-      <label for="epargne">Part du salaire mise de côté (%)</label>
-      <input id="epargne" type="number" inputmode="decimal" value="100" min="0" max="100" step="any" data-sep>
-
-      <div class="row">
-        <div><label for="nbMois">Salaires par an</label><select id="nbMois"><option value="12" selected>12</option><option value="13">13</option></select></div>
-        <div><label for="augm">Augmentation par an (%)</label><input id="augm" type="number" data-sep inputmode="decimal" value="0" min="0" step="any"></div>
-      </div>
-      <p class="note">Seule la part mise de côté compte (ex. 20 % de 1 000 € = 200 € par mois). Les dépenses, impôts et l'inflation ne sont pas comptés.</p>
-    </section>
+      <section class="card" style="margin-top:24px">
+        <div class="section-title">Second salaire</div>
+        <label for="nomB">Nom</label>
+        <input id="nomB" class="nom" type="text" value="Salaire 2" maxlength="30">
+        <label for="salaireB">Montant</label>
+        <div class="row">
+          <input id="salaireB" type="number" data-sep inputmode="decimal" value="2500" min="0" step="any">
+          <select id="periodeB"><option value="m" selected>par mois</option><option value="a">par an</option></select>
+        </div>
+        <label for="epargneB">Part mise de côté (%)</label>
+        <input id="epargneB" type="number" inputmode="decimal" value="100" min="0" max="100" step="any" data-sep>
+        <div class="row">
+          <div><label for="nbMoisB">Salaires par an</label><select id="nbMoisB"><option value="12" selected>12</option><option value="13">13</option></select></div>
+          <div><label for="augmB">Hausse par an (%)</label><input id="augmB" type="number" data-sep inputmode="decimal" value="0" min="0" step="any"></div>
+        </div>
+        <p class="note">Seule la part mise de côté compte (ex. 20 % de 1 000 € = 200 € par mois). Les dépenses, impôts et l'inflation ne sont pas comptés.</p>
+      </section>
+    </div>
 
     <div>
       <section class="hero">
-        <div class="micro" id="heroLabel">Durée pour atteindre l'objectif</div>
-        <div class="big" id="duree">0</div>
+        <div class="micro">Durée pour atteindre l'objectif</div>
+        <div class="row" style="margin-top:8px">
+          <div><div class="micro" id="hNomA"></div><div class="big" id="dureeA" style="font-size:32px">0</div></div>
+          <div><div class="micro" id="hNomB"></div><div class="big" id="dureeB" style="font-size:32px">0</div></div>
+        </div>
         <span class="pill" id="pill"></span>
       </section>
-      <div class="kpis">
-        <div class="card kpi"><div class="micro">Années de salaire</div><div class="v" id="kAns">0</div></div>
-        <div class="card kpi"><div class="micro">Salaires cumulés</div><div class="v" id="kNb">0</div></div>
-        <div class="card kpi"><div class="micro">Date estimée</div><div class="v" id="kDate">0</div></div>
-      </div>
-      <section class="card">
+
+      <section class="card" style="margin-top:24px">
+        <div class="section-title">Comparaison</div>
+        <div class="tbl" style="max-height:none"><table>
+          <thead><tr><th>Mesure</th><th id="thA"></th><th id="thB"></th><th>Écart (2 - 1)</th></tr></thead>
+          <tbody id="cmp"></tbody>
+        </table></div>
+      </section>
+
+      <section class="card" style="margin-top:24px">
         <div class="section-title">Détail par année</div>
         <div class="tbl"><table>
-          <thead><tr><th>Année</th><th>Salaire annuel</th><th>Cumul</th><th>Objectif</th></tr></thead>
+          <thead><tr><th>Année</th><th id="thA2"></th><th>Objectif</th><th id="thB2"></th><th>Objectif</th></tr></thead>
           <tbody id="tbody"></tbody>
         </table></div>
         <p class="note" id="hyp"></p>
@@ -176,44 +204,70 @@ document.querySelectorAll('input[data-sep]').forEach(el=>{
   el.addEventListener('input',()=>espacer(el));
 });
 const N=s=>'<span class="n">'+s+'</span>';
+const MAXAN=200;
+function simuler(p){
+  const nb=+$('nbMois'+p).value, g=Math.max(0,lire('augm'+p))/100;
+  const sal=lire('salaire'+p), part=Math.min(100,Math.max(0,lire('epargne'+p)))/100;
+  const brut0=$('periode'+p).value==='m'?sal*nb:sal, annuel0=brut0*part;
+  const cible=lire('cible'), dep=lire('dejaLa');
+  const cum=[dep]; let a=annuel0;
+  for(let y=1;y<=MAXAN;y++){cum.push(cum[y-1]+a);a*=1+g}
+  let res=null;
+  if(cible-dep<=0)res=0;
+  else if(annuel0>0){
+    for(let y=1;y<=MAXAN;y++){
+      if(cum[y]>=cible){res=(y-1)+(cible-cum[y-1])/(cum[y]-cum[y-1]);break}
+    }
+  }
+  return {nb,g,part,brut0,annuel0,cible,dep,cum,res};
+}
 function render(){
   const cur=$('devise').value;
   const money=v=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:cur,maximumFractionDigits:0}).format(v);
+  const signe=(v,f)=>(v>0?'+':v<0?'-':'')+f(Math.abs(v));
   const num=(v,d=2)=>new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d}).format(v);
-  const nb=+$('nbMois').value, g=Math.max(0,lire('augm'))/100;
-  let sal=lire('salaire'); const part=Math.min(100,Math.max(0,lire('epargne')))/100;
-  const brut0=$('periode').value==='m'?sal*nb:sal; const annuel0=brut0*part;
-  const cible=lire('cible'), dep=lire('dejaLa');
-  const reste=cible-dep;
-  $('formule').textContent='Combien d\'années de salaire pour atteindre ton objectif, dépenses non comptées';
-  const tb=[];let cum=dep,years=0,done=false,res=null;
-  if(reste<=0){res=0;done=true}
-  else if(annuel0<=0){res=null}
+  const nomA=$('nomA').value.trim()||'Salaire 1', nomB=$('nomB').value.trim()||'Salaire 2';
+  const A=simuler(''), B=simuler('B');
+  const moisTot=r=>{const m=Math.ceil(r*12-1e-9);return m<0?0:m};
+  const dur=m=>{const an=Math.floor(m/12), mo=m%12;return an+' an'+(an>1?'s':'')+' '+mo+' mois'};
+  const durR=r=>r===null?'Inatteignable':dur(moisTot(r));
+  $('formule').textContent='Combien d\'années de salaire pour atteindre ton objectif, et laquelle des deux situations est la plus rapide';
+  ['hNomA','thA','thA2'].forEach(i=>$(i).textContent=nomA);
+  ['hNomB','thB','thB2'].forEach(i=>$(i).textContent=nomB);
+  $('dureeA').innerHTML=N(durR(A.res));
+  $('dureeB').innerHTML=N(durR(B.res));
+  // phrase d'écart
+  if(A.res===null&&B.res===null){$('pill').textContent='Aucun des deux salaires n\'atteint l\'objectif en '+MAXAN+' ans';$('pill').className='pill neg'}
+  else if(A.res===null||B.res===null){
+    $('pill').textContent=(A.res===null?nomB:nomA)+' est le seul à atteindre l\'objectif';$('pill').className='pill'}
   else{
-    let a=annuel0;
-    for(let y=1;y<=200;y++){
-      const avant=cum;cum+=a;
-      if(y<=60||cum>=cible)tb.push({y,a,cum});
-      if(!done&&cum>=cible){res=(y-1)+(cible-avant)/a;done=true;break}
-      a*=1+g;
-    }
+    const dm=moisTot(A.res)-moisTot(B.res);
+    if(dm===0){$('pill').textContent='Même durée pour les deux';$('pill').className='pill'}
+    else{$('pill').textContent=(dm>0?nomB:nomA)+' est plus rapide de '+dur(Math.abs(dm));$('pill').className='pill'}
   }
-  if(res===null){
-    $('duree').innerHTML=N('Inatteignable');$('pill').textContent='Salaire nul ou objectif hors de portée en 200 ans';$('pill').className='pill neg';
-    $('kAns').innerHTML=N('0');$('kNb').innerHTML=N('0');$('kDate').innerHTML=N('0');$('tbody').innerHTML='';
-  }else{
-    const ans=Math.floor(res), mois=Math.ceil((res-ans)*12-1e-9);
-    const A=ans+(mois===12?1:0), M=mois===12?0:mois;
-    $('duree').innerHTML=N(A+' an'+(A>1?'s':'')+' '+M+' mois');
-    const pct=cible>0?Math.min(100,dep/cible*100):100;
-    $('pill').textContent='Départ : '+num(pct,1)+' % de l\'objectif déjà atteint';$('pill').className='pill';
-    $('kAns').innerHTML=N(num(res,2));
-    $('kNb').innerHTML=N(num(Math.ceil(res*nb)));
-    const d=new Date();d.setMonth(d.getMonth()+Math.ceil(res*12));
-    $('kDate').innerHTML=N(d.toLocaleDateString('fr-FR',{month:'2-digit',year:'numeric'}));
-    $('tbody').innerHTML=tb.map(r=>'<tr><td>Année '+r.y+'</td><td>'+money(r.a)+'</td><td>'+money(r.cum)+'</td><td>'+num(Math.min(999,r.cum/cible*100),1)+' %</td></tr>').join('');
+  // tableau de comparaison
+  const dateEst=r=>{if(r===null)return '-';const d=new Date();d.setMonth(d.getMonth()+moisTot(r));return d.toLocaleDateString('fr-FR',{month:'2-digit',year:'numeric'})};
+  const ecart=(x,y,f)=>(x===null||y===null)?'-':signe(y-x,f);
+  const lignes=[
+    ['Durée',durR(A.res),durR(B.res),(A.res===null||B.res===null)?'-':(()=>{const d=moisTot(B.res)-moisTot(A.res);return (d>0?'+':d<0?'-':'')+dur(Math.abs(d))})()],
+    ['Années de salaire',A.res===null?'-':num(A.res,2),B.res===null?'-':num(B.res,2),ecart(A.res,B.res,v=>num(v,2))],
+    ['Salaires cumulés',A.res===null?'-':num(Math.ceil(A.res*A.nb)),B.res===null?'-':num(Math.ceil(B.res*B.nb)),(A.res===null||B.res===null)?'-':signe(Math.ceil(B.res*B.nb)-Math.ceil(A.res*A.nb),v=>num(v,0))],
+    ['Date estimée',dateEst(A.res),dateEst(B.res),'-'],
+    ['Mis de côté par an',money(A.annuel0),money(B.annuel0),signe(B.annuel0-A.annuel0,money)],
+    ['Mis de côté par mois',money(A.annuel0/A.nb),money(B.annuel0/B.nb),signe(B.annuel0/B.nb-A.annuel0/A.nb,money)]
+  ];
+  $('cmp').innerHTML=lignes.map(l=>'<tr><td>'+l[0]+'</td><td>'+l[1]+'</td><td>'+l[2]+'</td><td>'+l[3]+'</td></tr>').join('');
+  // détail par année
+  const Y=Math.max(1,Math.min(60,Math.max(A.res===null?0:Math.ceil(A.res),B.res===null?0:Math.ceil(B.res))||10));
+  const cible=A.cible;
+  let rows='';
+  for(let y=1;y<=Y;y++){
+    const pc=c=>cible>0?num(Math.min(999,c/cible*100),1)+' %':'-';
+    rows+='<tr><td>Année '+y+'</td><td>'+money(A.cum[y])+'</td><td>'+pc(A.cum[y])+'</td><td>'+money(B.cum[y])+'</td><td>'+pc(B.cum[y])+'</td></tr>';
   }
-  $('hyp').textContent='Hypothèses : '+money(annuel0)+' mis de côté la première année ('+num(part*100,1)+' % de '+money(brut0)+', '+nb+' salaires), augmentation de '+num(g*100,1)+' % par an, capital de départ '+money(dep)+', aucun rendement, aucune dépense, aucun impôt. Estimation, pas une prévision.';
+  $('tbody').innerHTML=rows;
+  const hy=(n,r)=>n+' : '+money(r.annuel0)+' mis de côté la première année ('+num(r.part*100,1)+' % de '+money(r.brut0)+', '+r.nb+' salaires, hausse de '+num(r.g*100,1)+' % par an)';
+  $('hyp').textContent='Hypothèses : '+hy(nomA,A)+' ; '+hy(nomB,B)+' ; capital de départ '+money(A.dep)+', aucun rendement, aucune dépense, aucun impôt. Estimation, pas une prévision.';
 }
 document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',render));
 render();
